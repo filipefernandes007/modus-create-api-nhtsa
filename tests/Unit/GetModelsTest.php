@@ -115,4 +115,53 @@
 
             $promise->wait();
         }
+
+        public function testRequirement32() {
+            $client  = new \GuzzleHttp\Client();
+            $request = new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8080/vehicles/2015/Audi/A3?withRating=bananas');
+            $promise = $client->sendAsync($request)->then(function (\GuzzleHttp\Psr7\Response $response) {
+                $result = json_decode($response->getBody()->getContents());
+
+                $this->assertEquals(200, $response->getStatusCode());
+                $this->assertEquals(4, $result->Count);
+
+            });
+
+            $promise->wait();
+        }
+
+        public function testRequirement33() {
+            $client  = new \GuzzleHttp\Client();
+            $request = new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8080/vehicles/2015/Audi/A3?withRating=false');
+            $promise = $client->sendAsync($request)->then(function (\GuzzleHttp\Psr7\Response $response) {
+                $result = json_decode($response->getBody()->getContents());
+
+                $this->assertEquals(200, $response->getStatusCode());
+                $this->assertEquals(4, $result->Count);
+
+            });
+
+            $promise->wait();
+        }
+
+        /**
+         * @throws \GuzzleHttp\Exception\GuzzleException
+         */
+        public function testFail1() {
+            $client  = new \GuzzleHttp\Client();
+            $request = new \GuzzleHttp\Psr7\Request('POST',
+                                                    'http://localhost:8080/vehicles',
+                                                    ['Content-Type' => 'application/json'],
+                                                    json_encode(['manufacturer' => 'Honda',
+                                                                 'model'        => 'Accord']));
+            try {
+                $client->send($request);
+            } catch (\GuzzleHttp\Exception\ServerException $e) {
+                $errorObj = json_decode($e->getResponse()->getBody()->getContents());
+
+                $this->assertEquals('0', $errorObj->Count);
+                $this->assertEquals(0, count($errorObj->Results));
+            }
+
+        }
     }
