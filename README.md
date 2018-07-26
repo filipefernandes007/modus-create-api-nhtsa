@@ -20,12 +20,12 @@ The above command will point your virtual host document root to your new applica
 
 To run the application in development, and if you not already have the web server running, you can run these command: 
 
-	cd [my-app-name]
-	php composer.phar start
+	cd modus-create-api-exercise
+	composer start
 
 Run this command in the application directory to run the test suite
 
-	php composer.phar test
+	composer test
 
 That's it!
 
