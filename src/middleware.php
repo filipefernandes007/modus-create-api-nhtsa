@@ -8,4 +8,13 @@ $container['notFoundHandler'] = function ($c) {
     };
 };
 
+$container['errorHandler'] = function (\Slim\Container $c) {
+    return function (\Slim\Http\Request $request, \Slim\Http\Response $response, $exception) use ($c) {
+        /** @var \Monolog\Logger $logger */
+        $logger = $c->get('logger');
+
+        $logger->error($request->getUri()->getPath() . ' : ' . $exception->getMessage());
+        return $response->withJson(['error' => 'Something went wrong.', 'statusCode' => \App\Base\BaseAPIController::STATUS_CODE_500], \App\Base\BaseAPIController::STATUS_CODE_500);
+    };
+};
 

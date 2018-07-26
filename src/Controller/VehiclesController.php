@@ -86,7 +86,7 @@
                 // send what can be considered an empty result : Count = 0 ; Results = []
                 $resultObjectOnResponse = new ResultOnResponseModel();
 
-
+                $this->logger->error($this->makeUrlModelRequest($carModel) . ' : ' . $e->getMessage());
             }
 
             return (new Response())->withStatus(self::STATUS_CODE_OK)
