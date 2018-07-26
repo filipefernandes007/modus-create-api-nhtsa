@@ -1,7 +1,6 @@
 <?php
     /**
      * Filipe <filipefernandes007@gmail.com>
-     * 26/07/2018 04:27
      */
 
     namespace App\model;
@@ -20,27 +19,8 @@
         /** @var string */
         protected $model;
 
-        /**
-         * CarModel constructor.
-         * @param array $args
-         */
-        public function __construct(array $args) {
-            if (\count($args) < 3) {
-                throw new \LengthException('Expecting an array with length 3, got ' . \count($args));
-            }
-
-            if (isset($args['modelYear'])) {
-                $this->modelYear = $args['modelYear'];
-            }
-
-            if (isset($args['manufacturer'])) {
-                $this->manufacturer = $args['manufacturer'];
-            }
-
-            if (isset($args['model'])) {
-                $this->model = $args['model'];
-            }
-        }
+        /** @var string */
+        protected $overallRating;
 
         /**
          * @return int
@@ -79,6 +59,23 @@
         /**
          * @return string
          */
+        public function getMake() : string {
+            return $this->manufacturer;
+        }
+
+        /**
+         * @param string $manufacturer
+         * @return CarModel
+         */
+        public function setMake(string $manufacturer) : CarModel {
+            $this->manufacturer = $manufacturer;
+
+            return $this;
+        }
+
+        /**
+         * @return string
+         */
         public function getModel() : string {
             return $this->model;
         }
@@ -92,5 +89,24 @@
 
             return $this;
         }
+
+        /**
+         * @return string
+         */
+        public function getOverallRating() : string {
+            return $this->overallRating;
+        }
+
+        /**
+         * @param string $overallRating
+         * @return CarModel
+         */
+        public function setOverallRating(string $overallRating) : CarModel {
+            $this->overallRating = $overallRating;
+
+            return $this;
+        }
+
+
 
     }

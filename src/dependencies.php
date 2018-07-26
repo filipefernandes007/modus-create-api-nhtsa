@@ -17,3 +17,11 @@ $container['logger'] = function ($c) {
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
     return $logger;
 };
+
+$container[\App\Base\BaseAPIController::class] = function ($c) {
+    return new \App\Base\BaseAPIController($c);
+};
+
+$container['app'] = function ($c) use ($app) {
+    return $app;
+};

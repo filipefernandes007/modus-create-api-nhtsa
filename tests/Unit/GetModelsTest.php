@@ -2,6 +2,8 @@
     /**
      * Filipe <filipefernandes007@gmail.com>
      * 26/07/2018 01:32
+     *
+     * Run: composer test || ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests/Unit/GetModelsTest
      */
 
     namespace Tests\Unit;
@@ -65,11 +67,11 @@
         public function testRequirement21() {
             $client  = new \GuzzleHttp\Client();
             $request = new \GuzzleHttp\Psr7\Request('POST',
-                                                        'http://localhost:8080/vehicles',
-                                                            ['Content-Type' => 'application/json'],
-                                                            json_encode(['modelYear'    => 2015,
-                                                                         'manufacturer' => 'Audi',
-                                                                         'model'        => 'A3']));
+                                                    'http://localhost:8080/vehicles',
+                                                     ['Content-Type' => 'application/json'],
+                                                     json_encode(['modelYear'    => 2015,
+                                                                  'manufacturer' => 'Audi',
+                                                                  'model'        => 'A3']));
             $promise = $client->sendAsync($request)->then(function (\GuzzleHttp\Psr7\Response $response) {
                 $result = json_decode($response->getBody()->getContents());
 

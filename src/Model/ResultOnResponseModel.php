@@ -70,8 +70,8 @@
          * @return array
          */
         public function asArray() : array {
-            return ['Count'    => $this->count,
-                    'Results:' => $this->results];
+            return ['Count'   => $this->count,
+                    'Results' => $this->results];
         }
 
     }
