@@ -8,7 +8,7 @@ PHP 7.0 or greater
 
 ## Install the Application
 
-Run this commands from the directory in which you want to install this API.
+Run this commands:
 
     git clone https://gitlab.com/filipefernandes007/modus-create-api-exercise.git
     cd modus-create-api-exercise
