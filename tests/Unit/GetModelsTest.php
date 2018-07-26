@@ -101,4 +101,18 @@
 
             $promise->wait();
         }
+
+        public function testRequirement31() {
+            $client  = new \GuzzleHttp\Client();
+            $request = new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8080/vehicles/2015/Audi/A3?withRating=true');
+            $promise = $client->sendAsync($request)->then(function (\GuzzleHttp\Psr7\Response $response) {
+                $result = json_decode($response->getBody()->getContents());
+
+                $this->assertEquals(200, $response->getStatusCode());
+                $this->assertEquals(4, $result->Count);
+
+            });
+
+            $promise->wait();
+        }
     }
