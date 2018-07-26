@@ -36,10 +36,10 @@
             /** @var CarModel $carModel */
             $carModel = CarModelHelper::makeModelOnResultRequest($args);
 
-            if (empty($withRating)) {
-                $r = $this->model($carModel);
-            } else {
+            if (!empty($withRating) && $withRating === 'true') {
                 $r = $this->withRating($carModel);
+            } else {
+                $r = $this->model($carModel);
             }
 
             $this->logger->info($request->getUri()->getPath() . ' : ' . $r);

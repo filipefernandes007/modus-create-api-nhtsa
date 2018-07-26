@@ -14,7 +14,7 @@ $container['errorHandler'] = function (\Slim\Container $c) {
         $logger = $c->get('logger');
 
         $logger->error($request->getUri()->getPath() . ' : ' . $exception->getMessage());
-        return $response->withJson(['error' => 'Something went wrong.', 'statusCode' => \App\Base\BaseAPIController::STATUS_CODE_500], \App\Base\BaseAPIController::STATUS_CODE_500);
+        return $response->withJson(['Count' => '0', 'Results' => [], 'statusCode' => \App\Base\BaseAPIController::STATUS_CODE_500], \App\Base\BaseAPIController::STATUS_CODE_500);
     };
 };
 
