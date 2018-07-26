@@ -4,14 +4,16 @@
 
 PHP 7.0 or greater
 
+[composer - Dependency Manager for PHP](https://getcomposer.org/download/) 
+
 ## Install the Application
 
-Run this command from the directory in which you want to install this API.
+Run this commands from the directory in which you want to install this API.
 
-    php composer.phar install [my-app-name]
-
-Replace `[my-app-name]` with the desired directory name for your new application. You'll want to:
-
+    git clone https://gitlab.com/filipefernandes007/modus-create-api-exercise.git
+    cd modus-create-api-exercise
+    composer install 
+    
 * Ensure `logs/` is web writable.
 
 The above command will point your virtual host document root to your new application's `public/` directory.
