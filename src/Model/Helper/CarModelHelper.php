@@ -23,7 +23,7 @@
             }
 
             if (\is_array($args) && \count($args) < 3) {
-                throw new \LengthException('Expecting an array with length 3, got ' . \count($args));
+                throw new \LengthException('CarModelHelper::makeModelOnResultRequest : Expecting an array with length 3, got ' . \count($args));
             }
 
             $model = new CarModel();

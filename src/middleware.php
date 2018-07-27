@@ -13,7 +13,9 @@ $container['errorHandler'] = function (\Slim\Container $c) {
         /** @var \Monolog\Logger $logger */
         $logger = $c->get('logger');
 
-        $logger->error($request->getUri()->getPath() . ' : ' . $exception->getMessage());
+        $errorOutput = ['Count' => '0', 'Results' => [], 'error' => $exception->getMessage(), 'statusCode' => \App\Base\BaseAPIController::STATUS_CODE_500] ;
+
+        $logger->error($request->getUri()->getPath() . ' : ' .  json_encode($errorOutput));
         return $response->withJson(['Count' => '0', 'Results' => [], 'error' => $exception->getMessage(), 'statusCode' => \App\Base\BaseAPIController::STATUS_CODE_500], \App\Base\BaseAPIController::STATUS_CODE_500);
     };
 };
