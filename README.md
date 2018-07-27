@@ -30,6 +30,6 @@ Run this command in the application directory to run the test suite:
 
 	composer test
 
-After that, you look at `logs/app.log` to see phpunit tests json results.
+After that, you can look at `logs/app.log` to see phpunit tests json results.
 
 That's it!
