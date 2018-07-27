@@ -11,7 +11,7 @@ PHP 7.0 or greater
 Run this commands:
 
     git clone https://github.com/filipefernandes007/modus-create-api-nhtsa.git
-    cd modus-create-api-exercise
+    cd modus-create-api-nhtsa
     
 * Ensure `logs/` is web writable. 
 
