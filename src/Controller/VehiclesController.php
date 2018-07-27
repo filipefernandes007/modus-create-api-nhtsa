@@ -8,6 +8,7 @@
 
 
     use App\Base\BaseAPIController;
+    use App\Helper\LoggerResultHelper;
     use App\model\CarModel;
     use App\Model\Helper\CarModelHelper;
     use App\Model\Helper\VehicleModelHelper;
@@ -43,7 +44,7 @@
                 $result = $this->model($carModel);
             }
 
-            $this->logger->info($request->getUri()->getPath() . ' : ' . $result);
+            LoggerResultHelper::instance($this->logger)->result(LoggerResultHelper::INFO_TYPE, $request, $response, $result);
 
             return $result;
         }
@@ -56,8 +57,8 @@
         public function postVehicles(Request $request, Response $response) : Response {
             if (!\in_array('application/json', $request->getHeader('Content-Type'))) {
                 $result = $response->withJson(['Count'   => 0,
-                                          'Results' => [],
-                                          'error'   => 'Only request content-type application json is accepted']);
+                                               'Results' => [],
+                                               'error'   => 'Only request content-type application json is accepted']);
             } else {
                 /** @var CarModel $carModel */
                 $carModel = CarModelHelper::makeModelOnResultRequest($request->getParsedBody());
@@ -66,7 +67,7 @@
                 $result = $this->model($carModel);
             }
 
-            $this->logger->info($request->getUri()->getPath() . ' : ' . $result);
+            LoggerResultHelper::instance($this->logger)->result(LoggerResultHelper::INFO_TYPE, $request, $response, $result);
 
             return $result;
         }
@@ -143,7 +144,7 @@
 
             if ($resultObjectOnResponse === null) {
                 return (new Response())->withHeader('Content-Type', 'application/json; charset=utf-8')
-                                       ->withJson(['Count' => 0, 'Results' => [], 'error' => 'Server error!', 'statusCode' => self::STATUS_CODE_500], self::STATUS_CODE_500);
+                                       ->withJson(['Count' => 0, 'Results' => [], 'error' => 'Server error!', 'statusCode' => self::STATUS_CODE_SERVER_ERROR], self::STATUS_CODE_SERVER_ERROR);
             }
 
             $resultObjectOnResponse->setCount(\count($result));
