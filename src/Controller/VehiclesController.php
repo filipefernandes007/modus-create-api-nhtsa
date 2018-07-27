@@ -13,6 +13,7 @@
     use App\Model\Helper\VehicleModelHelper;
     use App\model\ResultOnResponseModel;
     use GuzzleHttp;
+    use GuzzleHttp\Exception\GuzzleException;
     use Slim\Http\Request;
     use Slim\Http\Response;
 
@@ -37,14 +38,14 @@
             $carModel = CarModelHelper::makeModelOnResultRequest($args);
 
             if (!empty($withRating) && $withRating === 'true') {
-                $r = $this->withRating($carModel);
+                $result = $this->withRating($carModel);
             } else {
-                $r = $this->model($carModel);
+                $result = $this->model($carModel);
             }
 
-            $this->logger->info($request->getUri()->getPath() . ' : ' . $r);
+            $this->logger->info($request->getUri()->getPath() . ' : ' . $result);
 
-            return $r;
+            return $result;
         }
 
         /**
@@ -54,17 +55,20 @@
          */
         public function postVehicles(Request $request, Response $response) : Response {
             if (!\in_array('application/json', $request->getHeader('Content-Type'))) {
-                $r = $response->withJson(['error' => 'Only request content-type application json is accepted']);
+                $result = $response->withJson(['Count'   => 0,
+                                          'Results' => [],
+                                          'error'   => 'Only request content-type application json is accepted']);
             } else {
                 /** @var CarModel $carModel */
                 $carModel = CarModelHelper::makeModelOnResultRequest($request->getParsedBody());
 
-                $r = $this->model($carModel);
+                /** @var Response $result */
+                $result = $this->model($carModel);
             }
 
-            $this->logger->info($request->getUri()->getPath() . ' : ' . $r);
+            $this->logger->info($request->getUri()->getPath() . ' : ' . $result);
 
-            return $r;
+            return $result;
         }
 
         /**
@@ -82,15 +86,14 @@
 
                 /** @var ResultOnResponseModel $resultObjectOnResponse */
                 $resultObjectOnResponse = new ResultOnResponseModel(json_decode($guzzleResponse->getBody()->getContents()));
-            } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            } catch (GuzzleException $e) {
                 // send what can be considered an empty result : Count = 0 ; Results = []
                 $resultObjectOnResponse = new ResultOnResponseModel();
 
                 $this->logger->error($this->makeUrlModelRequest($carModel) . ' : ' . $e->getMessage());
             }
 
-            return (new Response())->withStatus(self::STATUS_CODE_OK)
-                                   ->withHeader('Content-Type', 'application/json; charset=utf-8')
+            return (new Response())->withHeader('Content-Type', 'application/json; charset=utf-8')
                                    ->withJson($resultObjectOnResponse->asArray(), self::STATUS_CODE_OK);
         }
 
@@ -99,56 +102,54 @@
          * @return Response
          */
         public function withRating(CarModel $carModel) : Response {
-            /** @var \Slim\Http\Response $result */
-            $result = $this->model($carModel);
+            /** @var \Slim\Http\Response */
+            $responseOnModelRequest = $this->model($carModel);
 
-            /** @var string[] $finalResults */
-            $finalResults = [];
+            /** @var ResultOnResponseModel */
+            $resultObjectOnResponse = null;
 
-            if ($result->getStatusCode() === self::STATUS_CODE_OK) {
-                $guzzleClient = new GuzzleHttp\Client();
+            /** @var array */
+            $result = [];
 
-                /** @var ResultOnResponseModel $resultObjectOnResponse */
-                $resultObjectOnResponse = new ResultOnResponseModel(json_decode($result->getBody()));
+            if ($responseOnModelRequest->getStatusCode() === self::STATUS_CODE_OK) {
+                $guzzleClient           = new GuzzleHttp\Client();
+                $resultObjectOnResponse = new ResultOnResponseModel(json_decode($responseOnModelRequest->getBody()));
 
                 foreach ($resultObjectOnResponse->getResults() as $value) {
                     $vehicle = VehicleModelHelper::makeModelOnResultRequest($value);
 
                     if ($vehicle !== null) {
                         try {
-                            /** @var \GuzzleHttp\Psr7\Response $guzzleResponse */
+                            /** @var \GuzzleHttp\Psr7\Response */
                             $guzzleResponse = $guzzleClient->request('GET', $this->makeUrlVehicleRequest($vehicle->getId()));
 
-                            /** @var ResultOnResponseModel $resultObjectOnResponse */
-                            $resultObjectOnResponse = new ResultOnResponseModel(json_decode($guzzleResponse->getBody()->getContents()));
+                            /** @var ResultOnResponseModel */
+                            $resultObjectOnCycleResponse = new ResultOnResponseModel(json_decode($guzzleResponse->getBody()->getContents()));
 
-                            if (!empty($resultObjectOnResponse) && $resultObjectOnResponse->getCount() > 0) {
-                                $carModel = CarModelHelper::makeModelOnResultRequest($resultObjectOnResponse->getResults()[0]);
+                            if ($resultObjectOnCycleResponse->getCount() > 0) {
+                                $carModel = CarModelHelper::makeModelOnResultRequest($resultObjectOnCycleResponse->getResults()[0]);
 
-                                $finalResults[] = ['CrashRating' => $carModel->getOverallRating(),
-                                                   'Description' => $vehicle->getDescription(),
-                                                   'VehicleId'   => $vehicle->getId()];
+                                $result[] = ['CrashRating' => $carModel->getOverallRating(),
+                                             'Description' => $vehicle->getDescription(),
+                                             'VehicleId'   => $vehicle->getId()];
                             }
-                        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
-                            return (new Response())->withStatus($guzzleResponse->getStatusCode())
-                                                   ->withHeader('Content-Type', 'application/json; charset=utf-8')
-                                                   ->withJson(['error' => 'Server error', 'statusCode' => $guzzleResponse->getStatusCode()], $guzzleResponse->getStatusCode());
+                        } catch (GuzzleException $e) {
+                            return (new Response())->withHeader('Content-Type', 'application/json; charset=utf-8')
+                                                   ->withJson(['Count' => 0, 'Results' => [], 'error' => 'Server error', 'statusCode' => $guzzleResponse->getStatusCode()], $guzzleResponse->getStatusCode());
                         }
                     }
                 }
             }
 
-            if (!isset($resultObjectOnResponse)) {
-                return (new Response())->withStatus(self::STATUS_CODE_500)
-                                       ->withHeader('Content-Type', 'application/json; charset=utf-8')
-                                       ->withJson(['error' => 'Server error!', 'statusCode' => self::STATUS_CODE_500], self::STATUS_CODE_500);
+            if ($resultObjectOnResponse === null) {
+                return (new Response())->withHeader('Content-Type', 'application/json; charset=utf-8')
+                                       ->withJson(['Count' => 0, 'Results' => [], 'error' => 'Server error!', 'statusCode' => self::STATUS_CODE_500], self::STATUS_CODE_500);
             }
 
-            $resultObjectOnResponse->setCount(\count($finalResults));
-            $resultObjectOnResponse->setResults($finalResults);
+            $resultObjectOnResponse->setCount(\count($result));
+            $resultObjectOnResponse->setResults($result);
 
-            return (new Response())->withStatus(self::STATUS_CODE_OK)
-                                   ->withHeader('Content-Type', 'application/json; charset=utf-8')
+            return (new Response())->withHeader('Content-Type', 'application/json; charset=utf-8')
                                    ->withJson($resultObjectOnResponse->asArray(), self::STATUS_CODE_OK);
         }
 

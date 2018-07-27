@@ -4,7 +4,7 @@
 //Override the default Not Found Handler
 $container['notFoundHandler'] = function ($c) {
     return function ($request, \Slim\Http\Response $response) {
-        return $response->withJson(['error' => 'Invalid end-point: missing values or malformed url. Please check, and submit again.', 'statusCode' => 404], 404);
+        return $response->withJson(['Count' => '0', 'Results' => [], 'error' => 'Invalid end-point: missing values or malformed url. Please check, and submit again.', 'statusCode' => 404], 404);
     };
 };
 
@@ -14,7 +14,7 @@ $container['errorHandler'] = function (\Slim\Container $c) {
         $logger = $c->get('logger');
 
         $logger->error($request->getUri()->getPath() . ' : ' . $exception->getMessage());
-        return $response->withJson(['Count' => '0', 'Results' => [], 'statusCode' => \App\Base\BaseAPIController::STATUS_CODE_500], \App\Base\BaseAPIController::STATUS_CODE_500);
+        return $response->withJson(['Count' => '0', 'Results' => [], 'error' => $exception->getMessage(), 'statusCode' => \App\Base\BaseAPIController::STATUS_CODE_500], \App\Base\BaseAPIController::STATUS_CODE_500);
     };
 };
 
